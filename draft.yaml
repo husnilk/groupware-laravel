@@ -11,6 +11,62 @@ models:
     relationships:
       hasOne: Employee
 
+  # ======================
+  # UNIT
+  # ======================
+  OrganizationUnit:
+    name: string
+    code: string:unique:nullable
+    parent_id: id:nullable
+    type: enum:university,faculty,department,lab,unit
+    description: text:nullable
+
+    relationships:
+      belongsTo: OrganizationUnit:parent_id
+      hasMany: OrganizationUnit:parent_id, Employee
+
+  # ======================
+  # JABATAN STRUKTURAL
+  # ======================
+
+  StructuralPosition:
+    name: string
+    parent_id: id:nullable
+    grade: string
+    qualification: text:nullable
+    description: text:nullable
+
+    relationships:
+      belongsTo: StructuralPosition:parent_id
+      hasMany: StructuralPosition:parent_id, StructuralPositionHistory
+
+  JobResponsibility:
+    structural_position_id: id
+    title: string
+    description: text
+
+    type: enum:main,function
+    order: integer:nullable
+
+    relationships:
+      belongsTo: StructuralPosition
+
+  StructuralPositionHistory:
+    employee_id: id
+    structural_position_id: id
+
+    start_date: date
+    end_date: date:nullable
+    decree_number: string:nullable
+    decree_date: date:nullable
+    document: string:nullable
+
+    relationships:
+      belongsTo: Employee, StructuralPosition
+
+  # ======================
+  # PEGAWAI
+  # ======================
   Employee:
     user_id: id:unique
     employee_number: string:unique
@@ -32,7 +88,7 @@ models:
     status: enum:active,inactive
 
     relationships:
-      belongsTo: User, EmploymentStatus
+      belongsTo: User, OrganizationUnit, EmploymentStatus
       hasOne: Lecturer, Staff
       hasMany: EducationHistory
 
@@ -352,6 +408,7 @@ models:
 
     relationships:
       belongsTo: Staff, NomenclatureClassification
+
 
 controllers:
 # ...
