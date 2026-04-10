@@ -409,6 +409,130 @@ models:
     relationships:
       belongsTo: Staff, NomenclatureClassification
 
+  # ======================
+  # PERJALANAN DINAS
+  # ======================
+  OfficialTravel:
+    request_number: string:unique
+
+    purpose: string
+    destination: string
+    start_date: date
+    end_date: date
+
+    invitation_file: string:nullable
+
+    status: enum:draft,pending,approved,rejected,completed
+    submitted_by: id
+
+    submitted_at: timestamp
+    approved_at: timestamp:nullable
+    approved_by: id:nullable
+
+    travel_outcome: text:nullable
+    outcome_followup: text:nullable
+
+    relationships:
+      belongsTo: Employee:submitted_by, Employee:approved_by
+      hasMany: OfficialTravelMember, OfficialTravelItinerary, OfficialTravelApproval, OfficialTravelReport, TravelExpense, OfficialTravelDocument
+
+  OfficialTravelMember:
+    official_travel_id: id
+    employee_id: id
+    report_date: date
+    summary: text
+    attachment: string:nullable
+
+    role: string:nullable
+
+    relationships:
+      belongsTo: OfficialTravel, Employee
+
+  OfficialTravelItinerary:
+    official_travel_id: id
+
+    date: date
+    location: string
+    activity: string
+    description: text:nullable
+
+    relationships:
+      belongsTo: OfficialTravel
+
+  OfficialTravelApproval:
+    official_travel_id: id
+    approver_id: id
+
+    status: enum:approved,rejected
+    notes: text:nullable
+    action_date: timestamp
+
+    relationships:
+      belongsTo: OfficialTravel, Employee:approver_id
+
+  TravelCostComponent:
+    name: string
+    code: string:unique
+    description: text:nullable
+
+    relationships:
+      hasMany: TravelExpense, TravelCostStandard
+
+  TravelCostStandard:
+    city_id: id
+    structural_position_id: id:nullable
+    employee_grade_id: id:nullable
+    travel_cost_component_id: id
+
+    amount: decimal:12,2
+
+    relationships:
+      belongsTo: City, StructuralPosition, EmployeeGrade, TravelCostComponent
+
+  TravelExpense:
+    official_travel_id: id
+    employee_id: id
+
+    travel_cost_component_id: id
+    amount: decimal:12,2
+    description: text:nullable
+    receipt_file: string:nullable
+
+    submitted_at: timestamp
+    verified_at: timestamp:nullable
+
+    status: enum:submitted,approved,rejected
+
+    relationships:
+      belongsTo: OfficialTravel, Employee
+
+  OfficialTravelDocument:
+    official_travel_id: id
+
+    title: string
+    file_path: string
+    file_type: string:nullable
+    uploaded_at: timestamp
+
+    relationships:
+      belongsTo: OfficialTravel
+
+  # ======================
+  # PENGELOLAAN ASET
+  # ======================
+
+
+  # ======================
+  # PERJALANAN BARANG PERSEDIAAN
+  # ======================
+
+  # ======================
+  # KERJASAMA
+  # ======================
+
+  # ======================
+  # PROJECT MANAGEMENT
+  # ======================
 
 controllers:
 # ...
