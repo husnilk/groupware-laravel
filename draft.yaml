@@ -50,6 +50,7 @@ models:
     department: string
     relationships:
       belongsTo: Employee
+      hasMany: StaffNomenclatureHistory
 
   EmploymentStatus:
     name: string
@@ -86,7 +87,7 @@ models:
     sk_file: string:nullable
 
     relationships:
-      belongsTo: Lecturer,FunctionalPosition
+      belongsTo: Lecturer, FunctionalPosition
 
   # ======================
   # RESEARCH (PENELITIAN)
@@ -205,9 +206,9 @@ models:
     relationships:
       belongsTo: Employee
 
-    Holiday:
-      date: date
-      name: string
+  Holiday:
+    date: date
+    name: string
 
   # ======================
   # CUTI (LEAVE)
@@ -317,8 +318,40 @@ models:
 
     relationships:
       belongsTo: OvertimeRequest, Employee:approver_id
+  # ======================
+  # NOMENKLATUR PEKERJAAN
+  # ======================
 
+  Nomenclature:
+    name: string
+    qualification: text
+    duties: text
+    grade: string
 
+    relationships:
+      hasMany: NomenclatureClassification
+
+  NomenclatureClassification:
+    nomenclature_id: id
+    name: string
+    description: text:nullable
+
+    relationships:
+      belongsTo: Nomenclature
+      hasMany: StaffNomenclatureHistory
+
+  StaffNomenclatureHistory:
+    staff_id: id
+    nomenclature_classification_id: id
+
+    start_date: date
+    end_date: date:nullable
+    decree_number: string:nullable
+    decree_date: date:nullable
+    document: string:nullable
+
+    relationships:
+      belongsTo: Staff, NomenclatureClassification
 
 controllers:
-  # ...
+# ...
