@@ -1457,5 +1457,47 @@ models:
     relationships:
       belongsTo: Partnership, PartnershipImplementation
 
+  # ======================
+  # ASSIGNMENT (TASK HEADER)
+  # ======================
+
+  Assignment:
+    title: string
+    description: text:nullable
+
+    assigned_by: id
+    assigned_to: id
+
+    parent_id: id:nullable
+
+    start_date: date:nullable
+    due_date: date:nullable
+
+    status: enum:assigned,in_progress,completed,delegated,cancelled
+    priority: enum:low,medium,high
+
+    relationships:
+      belongsTo: Employee:assigned_by, Employee:assigned_to, Assignment:parent_id
+      hasMany: Assignment:parent_id, AssignmentProgress
+
+  # ======================
+  # ASSIGNMENT PROGRESS
+  # ======================
+
+  AssignmentProgress:
+    assignment_id: id
+
+    description: text:nullable
+    progress_date: date
+
+    status: enum:in_progress,completed
+
+    attachment: string:nullable
+
+    created_by: id
+
+    relationships:
+      belongsTo: Assignment, Employee:created_by
+
 controllers:
 # ...
