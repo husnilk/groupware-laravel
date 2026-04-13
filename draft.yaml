@@ -2,27 +2,27 @@ models:
   # ======================
   # USER
   # ======================
-  User:
-    name: string
-    email: string
-    email_verified_at: datetime:nullable
-    password: string
-    remember_token: string:nullable
-    two_factor_secret: text:nullable
-    two_factor_recovery_codes: text:nullable
-    two_factor_confirmed_at: datetime:nullable
-    relationships:
-      hasOne: Employee
+#  User:
+#    name: string
+#    email: string
+#    email_verified_at: datetime nullable
+#    password: string
+#    remember_token: string nullable
+#    two_factor_secret: text nullable
+#    two_factor_recovery_codes: text nullable
+#    two_factor_confirmed_at: datetime nullable
+#    relationships:
+#      hasOne: Employee
 
   # ======================
   # UNIT
   # ======================
   OrganizationUnit:
     name: string
-    code: string:unique:nullable
-    parent_id: id:nullable
+    code: string unique nullable
+    parent_id: id nullable
     type: enum:university,faculty,department,lab,unit
-    description: text:nullable
+    description: text nullable
 
     relationships:
       belongsTo: OrganizationUnit:parent_id
@@ -34,22 +34,21 @@ models:
 
   StructuralPosition:
     name: string
-    parent_id: id:nullable
+    parent_id: id nullable
     grade: string
-    qualification: text:nullable
-    description: text:nullable
+    qualification: text nullable
+    description: text nullable
 
     relationships:
       belongsTo: StructuralPosition:parent_id
-      hasMany: StructuralPosition:parent_id, StructuralPositionHistory
+      hasMany: StructuralPosition:parent_id, StructuralPositionHistoryy
 
   JobResponsibility:
     structural_position_id: id
     title: string
     description: text
-
     type: enum:main,function
-    order: integer:nullable
+    order: integer nullable
 
     relationships:
       belongsTo: StructuralPosition
@@ -57,12 +56,11 @@ models:
   StructuralPositionHistory:
     employee_id: id
     structural_position_id: id
-
     start_date: date
-    end_date: date:nullable
-    decree_number: string:nullable
-    decree_date: date:nullable
-    document: string:nullable
+    end_date: date nullable
+    decree_number: string nullable
+    decree_date: date nullable
+    document: string nullable
 
     relationships:
       belongsTo: Employee, StructuralPosition
@@ -71,21 +69,18 @@ models:
   # PEGAWAI
   # ======================
   Employee:
-    user_id: id:unique
-    employee_number: string:unique
-    national_id_number: string:nullable
-    tax_id_number: string:nullable
-
+    user_id: id unique
+    employee_number: string unique
+    national_id_number: string nullable
+    tax_id_number: string nullable
     name: string
     birth_place: string
     birth_date: date
     gender: enum:male,female
-    religion: string:nullable
+    religion: string nullable
     marital_status: enum:single,married,divorced
-
     address: text
-    phone_number: string:nullable
-
+    phone_number: string nullable
     organization_unit_id: id
     hire_date: date
     employment_status_id: id
@@ -100,24 +95,27 @@ models:
     name: string
 
   Lecturer:
-    employee_id: id:unique
+    employee_id: id unique
     academic_rank: string
-    functional_position: string:nullable
-    expertise: string:nullable
+    functional_position: string nullable
+    expertise: string nullable
+
     relationships:
       belongsTo: Employee
 
   Staff:
-    employee_id: id:unique
+    employee_id: id unique
     position: string
     department: string
+
     relationships:
       belongsTo: Employee
       hasMany: StaffNomenclatureHistory
 
   EmploymentStatus:
     name: string
-    description: string:nullable
+    description: string nullable
+
     relationships:
       hasMany: Employee
 
@@ -125,17 +123,18 @@ models:
     employee_id: id
     degree: string
     institution: string
-    major: string:nullable
+    major: string nullable
     start_year: year
-    end_year: year:nullable
-    gpa: decimal:3,2:nullable
+    end_year: year nullable
+    gpa: decimal:3,2 nullable
+
     relationships:
       belongsTo: Employee
 
   FunctionalPosition:
     name: string
-    description: string:nullable
-    level: integer:nullable
+    description: string nullable
+    level: integer nullable
 
     relationships:
       hasMany: LecturerFunctionalPosition
@@ -144,10 +143,10 @@ models:
     lecturer_id: id
     functional_position_id: id
     start_date: date
-    end_date: date:nullable
-    decree_number: string:nullable
-    decree_date: date:nullable
-    sk_file: string:nullable
+    end_date: date nullable
+    decree_number: string nullable
+    decree_date: date nullable
+    sk_file: string nullable
 
     relationships:
       belongsTo: Lecturer, FunctionalPosition
@@ -158,11 +157,11 @@ models:
 
   Research:
     title: string
-    description: text:nullable
+    description: text nullable
     start_date: date
-    end_date: date:nullable
-    funding_source: string:nullable
-    budget: decimal:12,2:nullable
+    end_date: date nullable
+    funding_source: string nullable
+    budget: decimal:12,2 nullable
     status: enum:proposed,ongoing,completed
 
     relationships:
@@ -171,7 +170,7 @@ models:
   ResearchMember:
     research_id: id
     lecturer_id: id
-    role: string:nullable
+    role: string nullable
 
     relationships:
       belongsTo: Research, Lecturer
@@ -182,11 +181,11 @@ models:
 
   CommunityService:
     title: string
-    description: text:nullable
+    description: text nullable
     location: string
     start_date: date
-    end_date: date:nullable
-    funding_source: string:nullable
+    end_date: date nullable
+    funding_source: string nullable
     status: enum:proposed,ongoing,completed
 
     relationships:
@@ -195,7 +194,7 @@ models:
   CommunityServiceMember:
     community_service_id: id
     lecturer_id: id
-    role: string:nullable
+    role: string nullable
 
     relationships:
       belongsTo: CommunityService, Lecturer
@@ -206,54 +205,56 @@ models:
   Publication:
     title: string
     publication_date: date
-    doi: string:nullable
-    url: string:nullable
-    abstract: text:nullable
-    research_id: id:nullable
+    doi: string nullable
+    url: string nullable
+    abstract: text nullable
+    research_id: id nullable
 
     relationships:
       hasMany: PublicationAuthor
       hasOne: JournalPublication, ConferenceProceeding
       belongsTo: Research
 
-  JournalPublication:
-    publication_id: id:unique
-    journal_name: string
-    issn: string:nullable
-    publisher: string:nullable
-    volume: string:nullable
-    issue: string:nullable
-    pages: string:nullable
+  PublicationAuthor:
+    publication_id: id
+    lecturer_id: id
+    author_order: integer
+    is_corresponding: boolean default:false
 
-    indexing: string:nullable
-    quartile: string:nullable
+    relationships:
+      belongsTo: Publication, Lecturer
+
+  JournalPublication:
+    publication_id: id unique
+    journal_name: string
+    issn: string nullable
+    publisher: string nullable
+    volume: string nullable
+    issue: string nullable
+    pages: string nullable
+
+    indexing: string nullable
+    quartile: string nullable
 
     relationships:
       belongsTo: Publication
 
   ConferenceProceeding:
-    publication_id: id:unique
+    publication_id: id unique
     conference_name: string
-    conference_location: string:nullable
-    conference_date: date:nullable
+    conference_location: string nullable
+    conference_date: date nullable
 
-    publisher: string:nullable
-    isbn: string:nullable
-    pages: string:nullable
+    publisher: string nullable
+    isbn: string nullable
+    pages: string nullable
 
-    indexing: string:nullable
+    indexing: string nullable
 
     relationships:
       belongsTo: Publication
 
-  PublicationAuthor:
-    publication_id: id
-    lecturer_id: id
-    author_order: integer
-    is_corresponding: boolean:default(false)
 
-    relationships:
-      belongsTo: Publication, Lecturer
 
   # ======================
   # MODUL KEHADIRAN
@@ -261,11 +262,10 @@ models:
   Attendance:
     employee_id: id
     date: date
-    check_in: datetime:nullable
-    check_out: datetime:nullable
-
+    check_in: datetime nullable
+    check_out: datetime nullable
     status: enum:present,absent,leave,overtime,holiday
-    notes: string:nullable
+    notes: string nullable
 
     relationships:
       belongsTo: Employee
@@ -279,9 +279,9 @@ models:
   # ======================
   LeaveType:
     name: string
-    description: string:nullable
+    description: string nullable
     default_quota: integer
-    requires_attachment: boolean:default(false)
+    requires_attachment: boolean default:false
 
     relationships:
       hasMany: LeaveRequest, LeaveBalance
@@ -291,7 +291,7 @@ models:
     leave_type_id: id
     year: year
     quota: integer
-    used: integer:default(0)
+    used: integer default:0
     remaining: integer
 
     relationships:
@@ -305,17 +305,17 @@ models:
     end_date: date
     total_days: integer
 
-    reason: text:nullable
-    attachment: string:nullable
+    reason: text nullable
+    attachment: string nullable
 
-    address_leave: string:nullable
-    contact_leave: string:nullable
+    address_leave: string nullable
+    contact_leave: string nullable
 
     status: enum:pending,approved,rejected,cancelled
     submitted_at: timestamp
-    approved_at: timestamp:nullable
+    approved_at: timestamp nullable
 
-    approver_id: id:nullable
+    approver_id: id nullable
 
     relationships:
       belongsTo: Employee, LeaveType, Employee:approver_id
@@ -326,8 +326,8 @@ models:
     approver_id: id
     level: integer
     status: enum:pending,approved,rejected
-    notes: text:nullable
-    action_date: timestamp:nullable
+    notes: text nullable
+    action_date: timestamp nullable
 
     relationships:
       belongsTo: LeaveRequest, Employee:approver_id
@@ -336,9 +336,9 @@ models:
   # LEMBUR (OVERTIME)
   # ======================
   OvertimeRequest:
-    request_number: string:unique
+    request_number: string unique
     title: string
-    description: text:nullable
+    description: text nullable
 
     request_date: date
     planned_start_time: datetime
@@ -346,10 +346,10 @@ models:
 
     status: enum:draft,pending,approved,rejected,completed,cancelled
     submitted_by: id
-    approved_by: id:nullable
+    approved_by: id nullable
 
-    submitted_at: timestamp:nullable
-    approved_at: timestamp:nullable
+    submitted_at: timestamp nullable
+    approved_at: timestamp nullable
 
     relationships:
       belongsTo: Employee:submitted_by, Employee:approved_by
@@ -359,16 +359,16 @@ models:
     overtime_request_id: id
     employee_id: id
 
-    role: string:nullable
-    job_desc: string:nullable
+    role: string nullable
+    job_desc: string nullable
     planned_hours: decimal:5,2
 
     actual_start_time: datetime
     actual_end_time: datetime
     actual_hours: decimal:5,2
 
-    output: text:nullable
-    attachment: string:nullable
+    output: text nullable
+    attachment: string nullable
 
     relationships:
       belongsTo: OvertimeRequest, Employee
@@ -377,7 +377,7 @@ models:
     overtime_request_id: id
     approver_id: id
     status: enum:approved,rejected
-    notes: text:nullable
+    notes: text nullable
     action_date: timestamp
 
     relationships:
@@ -398,7 +398,7 @@ models:
   NomenclatureClassification:
     nomenclature_id: id
     name: string
-    description: text:nullable
+    description: text nullable
 
     relationships:
       belongsTo: Nomenclature
@@ -409,10 +409,10 @@ models:
     nomenclature_classification_id: id
 
     start_date: date
-    end_date: date:nullable
-    decree_number: string:nullable
-    decree_date: date:nullable
-    document: string:nullable
+    end_date: date nullable
+    decree_number: string nullable
+    decree_date: date nullable
+    document: string nullable
 
     relationships:
       belongsTo: Staff, NomenclatureClassification
@@ -421,24 +421,24 @@ models:
   # PERJALANAN DINAS
   # ======================
   OfficialTravel:
-    request_number: string:unique
+    request_number: string unique
 
     purpose: string
     destination: string
     start_date: date
     end_date: date
 
-    invitation_file: string:nullable
+    invitation_file: string nullable
 
     status: enum:draft,pending,approved,rejected,completed
     submitted_by: id
 
     submitted_at: timestamp
-    approved_at: timestamp:nullable
-    approved_by: id:nullable
+    approved_at: timestamp nullable
+    approved_by: id nullable
 
-    travel_outcome: text:nullable
-    outcome_followup: text:nullable
+    travel_outcome: text nullable
+    outcome_followup: text nullable
 
     relationships:
       belongsTo: Employee:submitted_by, Employee:approved_by
@@ -449,9 +449,9 @@ models:
     employee_id: id
     report_date: date
     summary: text
-    attachment: string:nullable
+    attachment: string nullable
 
-    role: string:nullable
+    role: string nullable
 
     relationships:
       belongsTo: OfficialTravel, Employee
@@ -462,7 +462,7 @@ models:
     date: date
     location: string
     activity: string
-    description: text:nullable
+    description: text nullable
 
     relationships:
       belongsTo: OfficialTravel
@@ -472,7 +472,7 @@ models:
     approver_id: id
 
     status: enum:approved,rejected
-    notes: text:nullable
+    notes: text nullable
     action_date: timestamp
 
     relationships:
@@ -480,16 +480,16 @@ models:
 
   TravelCostComponent:
     name: string
-    code: string:unique
-    description: text:nullable
+    code: string unique
+    description: text nullable
 
     relationships:
       hasMany: TravelExpense, TravelCostStandard
 
   TravelCostStandard:
     city_id: id
-    structural_position_id: id:nullable
-    employee_grade_id: id:nullable
+    structural_position_id: id nullable
+    employee_grade_id: id nullable
     travel_cost_component_id: id
 
     amount: decimal:12,2
@@ -503,11 +503,11 @@ models:
 
     travel_cost_component_id: id
     amount: decimal:12,2
-    description: text:nullable
-    receipt_file: string:nullable
+    description: text nullable
+    receipt_file: string nullable
 
     submitted_at: timestamp
-    verified_at: timestamp:nullable
+    verified_at: timestamp nullable
 
     status: enum:submitted,approved,rejected
 
@@ -519,7 +519,7 @@ models:
 
     title: string
     file_path: string
-    file_type: string:nullable
+    file_type: string nullable
     uploaded_at: timestamp
 
     relationships:
@@ -530,13 +530,13 @@ models:
   # ======================
   Asset:
     name: string
-    code: string:unique
+    code: string unique
     type: enum:equipment,room
 
     acquisition_type: enum:procurement,grant
     acquisition_date: date
-    acquisition_cost: decimal:14,2:nullable
-    asset_grant_id: id:nullable
+    acquisition_cost: decimal:14,2 nullable
+    asset_grant_id: id nullable
 
     condition: enum:good,minor_damage,major_damage
     status: enum:available,in_use,maintenance,retired
@@ -550,18 +550,18 @@ models:
   # ======================
 
   AssetEquipment:
-    asset_id: id:unique
+    asset_id: id unique
 
-    brand: string:nullable
-    model: string:nullable
-    serial_number: string:nullable
+    brand: string nullable
+    model: string nullable
+    serial_number: string nullable
 
-    specification: text:nullable
-    purchase_link: string:nullable
-    photo: string:nullable
+    specification: text nullable
+    purchase_link: string nullable
+    photo: string nullable
 
-    depreciation_value: decimal:14,2:nullable
-    useful_life: integer:nullable
+    depreciation_value: decimal:14,2 nullable
+    useful_life: integer nullable
 
     relationships:
       belongsTo: Asset
@@ -571,22 +571,22 @@ models:
   # ======================
 
   AssetEquipmentRequest:
-    request_number: string:unique
+    request_number: string unique
     employee_id: id
 
     name: string
-    specification: text:nullable
-    purchase_link: string:nullable
-    photo: string:nullable
+    specification: text nullable
+    purchase_link: string nullable
+    photo: string nullable
 
     quantity: integer
 
     status: enum:pending,approved,rejected
 
     submitted_at: timestamp
-    approved_at: timestamp:nullable
+    approved_at: timestamp nullable
 
-    approved_by: id:nullable
+    approved_by: id nullable
 
     relationships:
       belongsTo: Employee, Employee:approved_by
@@ -596,13 +596,11 @@ models:
   # ======================
 
   AssetEquipmentProcurement:
-    request_number: string:unique
+    request_number: string unique
     title: string
 
     status: enum:draft,submitted,approved,rejected,completed
     created_by: id
-
-    created_at: timestamp
 
     relationships:
       belongsTo: Employee:created_by
@@ -612,9 +610,9 @@ models:
     asset_equipment_procurement_id: id
 
     name: string
-    specification: text:nullable
+    specification: text nullable
     quantity: integer
-    estimated_price: decimal:14,2:nullable
+    estimated_price: decimal:14,2 nullable
 
     relationships:
       belongsTo: AssetEquipmentProcurement
@@ -627,7 +625,7 @@ models:
     name: string
     source: string
     grant_date: date
-    description: text:nullable
+    description: text nullable
 
     relationships:
       hasMany: Asset
@@ -644,7 +642,7 @@ models:
     status: enum:reported,in_progress,resolved
 
     reported_at: timestamp
-    resolved_at: timestamp:nullable
+    resolved_at: timestamp nullable
 
     relationships:
       belongsTo: Asset, Employee:reported_by
@@ -658,11 +656,11 @@ models:
     employee_id: id
 
     start_date: date
-    end_date: date:nullable
+    end_date: date nullable
 
     status: enum:requested,approved,rejected,returned
 
-    approved_by: id:nullable
+    approved_by: id nullable
 
     relationships:
       belongsTo: Asset, Employee, Employee:approved_by
@@ -673,23 +671,23 @@ models:
   AssetTracking:
     asset_id: id
 
-    location: string:nullable
-    latitude: decimal:10,6:nullable
-    longitude: decimal:10,6:nullable
+    location: string nullable
+    latitude: decimal:10,6 nullable
+    longitude: decimal:10,6 nullable
 
     tracked_at: timestamp
-    notes: text:nullable
+    notes: text nullable
 
     relationships:
       belongsTo: Asset
 
   AssetTrackingLog:
     asset_id: id
-    from_location: string:nullable
-    to_location: string:nullable
+    from_location: string nullable
+    to_location: string nullable
 
     moved_at: timestamp
-    moved_by: id:nullable
+    moved_by: id nullable
 
     relationships:
       belongsTo: Asset, Employee:moved_by
@@ -699,11 +697,11 @@ models:
   # ======================
 
   AssetAudit:
-    audit_number: string:unique
+    audit_number: string unique
     audit_date: date
     conducted_by: id
 
-    description: text:nullable
+    description: text nullable
 
     relationships:
       belongsTo: Employee:conducted_by
@@ -714,7 +712,7 @@ models:
     asset_id: id
 
     condition: enum:good,minor_damage,major_damage,missing
-    notes: text:nullable
+    notes: text nullable
 
     relationships:
       belongsTo: AssetAudit, Asset
@@ -730,7 +728,7 @@ models:
     provider: string
 
     coverage_amount: decimal:14,2
-    premium: decimal:14,2:nullable
+    premium: decimal:14,2 nullable
 
     start_date: date
     end_date: date
@@ -745,7 +743,7 @@ models:
 
     claim_date: date
     claim_amount: decimal:14,2
-    description: text:nullable
+    description: text nullable
 
     status: enum:submitted,approved,rejected,paid
 
@@ -758,8 +756,8 @@ models:
 
   Building:
     name: string
-    code: string:unique
-    description: text:nullable
+    code: string unique
+    description: text nullable
 
     relationships:
       hasMany: AssetRoom
@@ -769,15 +767,15 @@ models:
     # ======================
 
   AssetRoom:
-    asset_id: id:unique
+    asset_id: id unique
     building_id: id
 
     name: string
-    code: string:unique
-    floor: string:nullable
+    code: string unique
+    floor: string nullable
 
     capacity: integer
-    is_public: boolean:default(false)
+    is_public: boolean default:false
 
     responsible_employee_id: id
 
@@ -797,7 +795,7 @@ models:
     status: enum:reported,in_progress,resolved
 
     reported_at: timestamp
-    resolved_at: timestamp:nullable
+    resolved_at: timestamp nullable
 
     relationships:
       belongsTo: AssetRoom, Employee:reported_by
@@ -813,11 +811,11 @@ models:
     start_time: datetime
     end_time: datetime
 
-    purpose: string:nullable
+    purpose: string nullable
 
     status: enum:requested,approved,rejected,completed
 
-    approved_by: id:nullable
+    approved_by: id nullable
 
     relationships:
       belongsTo: AssetRoom, Employee, Employee:approved_by
@@ -827,11 +825,11 @@ models:
     # ======================
   AssetAssignment:
     asset_id: id
-    employee_id: id:nullable
-    asset_room_id: id:nullable
+    employee_id: id nullable
+    asset_room_id: id nullable
 
     assigned_at: timestamp
-    returned_at: timestamp:nullable
+    returned_at: timestamp nullable
 
     relationships:
       belongsTo: Asset, Employee, AssetRoom
@@ -842,17 +840,17 @@ models:
 
   Item:
     name: string
-    code: string:unique
+    code: string unique
     unit: string
-    minimal_quantity: integer:default(0)
-    description: text:nullable
+    minimal_quantity: integer default:0
+    description: text nullable
 
     relationships:
       hasMany: InventoryProcurementItem, InventoryPurchaseItem, InventoryRequestDetail, InventoryTransaction
 
   Inventory:
-    item_id: id:unique
-    quantity: integer:default(0)
+    item_id: id unique
+    quantity: integer default:0
 
     relationships:
       belongsTo: Item
@@ -862,8 +860,8 @@ models:
     type: enum:in,out,adjustment
     quantity: integer
     transaction_date: date
-    reference: string:nullable
-    notes: text:nullable
+    reference: string nullable
+    notes: text nullable
 
     relationships:
       belongsTo: Item
@@ -873,14 +871,13 @@ models:
   # ======================
 
   InventoryProcurement:
-    request_number: string:unique
+    request_number: string unique
     title: string
 
     status: enum:draft,submitted,approved,rejected
     created_by: id
 
-    created_at: timestamp
-    approved_at: timestamp:nullable
+    approved_at: timestamp nullable
 
     relationships:
       belongsTo: Employee:created_by
@@ -888,8 +885,8 @@ models:
 
   InventoryProcurementItem:
     inventory_procurement_id: id
-    item_id: id:nullable
-    item_name: string:nullable
+    item_id: id nullable
+    item_name: string nullable
     quantity: integer
 
     relationships:
@@ -900,11 +897,11 @@ models:
   # ======================
 
   InventoryPurchase:
-    purchase_number: string:unique
-    inventory_procurement_id: id:nullable
+    purchase_number: string unique
+    inventory_procurement_id: id nullable
 
     purchase_date: date
-    supplier: string:nullable
+    supplier: string nullable
 
     status: enum:draft,completed
 
@@ -917,7 +914,7 @@ models:
     item_id: id
 
     quantity: integer
-    price: decimal:12,2:nullable
+    price: decimal:12,2 nullable
 
     relationships:
       belongsTo: InventoryPurchase, Item
@@ -927,14 +924,14 @@ models:
   # ======================
 
   InventoryRequest:
-    request_number: string:unique
+    request_number: string unique
     employee_id: id
 
     request_date: date
     status: enum:pending,approved,rejected,fulfilled
 
-    approved_by: id:nullable
-    approved_at: timestamp:nullable
+    approved_by: id nullable
+    approved_at: timestamp nullable
 
     relationships:
       belongsTo: Employee, Employee:approved_by
@@ -943,9 +940,9 @@ models:
   InventoryRequestDetail:
     inventory_request_id: id
 
-    item_id: id:nullable
-    item_name: string:nullable
-    specification: text:nullable
+    item_id: id nullable
+    item_name: string nullable
+    specification: text nullable
 
     quantity: integer
 
@@ -957,7 +954,7 @@ models:
     approver_id: id
 
     status: enum:approved,rejected
-    notes: text:nullable
+    notes: text nullable
     action_date: timestamp
 
     relationships:
@@ -973,13 +970,13 @@ models:
 
   Committee:
     name: string
-    description: text:nullable
+    description: text nullable
 
     objective: text
-    expected_outcome: text:nullable
+    expected_outcome: text nullable
 
     start_date: date
-    end_date: date:nullable
+    end_date: date nullable
 
     created_by: id
 
@@ -999,7 +996,7 @@ models:
     employee_id: id
 
     role: string
-    is_leader: boolean:default(false)
+    is_leader: boolean default:false
 
     relationships:
       belongsTo: Committee, Employee
@@ -1013,7 +1010,7 @@ models:
     committee_id: id
 
     name: string
-    institution: string:nullable
+    institution: string nullable
     role: string
 
     relationships:
@@ -1025,13 +1022,13 @@ models:
 
   CommitteeTask:
     committee_id: id
-    assigned_to: id:nullable
+    assigned_to: id nullable
 
     title: string
-    description: text:nullable
+    description: text nullable
 
-    start_date: date:nullable
-    due_date: date:nullable
+    start_date: date nullable
+    due_date: date nullable
 
     priority: enum:low,medium,high
     status: enum:todo,in_progress,done,blocked
@@ -1043,12 +1040,12 @@ models:
   CommitteeTaskProgress:
     committee_task_id: id
 
-    description: text:nullable
+    description: text nullable
     progress_date: date
 
     status: enum:in_progress,done
 
-    attachment: string:nullable
+    attachment: string nullable
 
     relationships:
       belongsTo: CommitteeTask
@@ -1061,10 +1058,10 @@ models:
     committee_id: id
 
     name: string
-    description: text:nullable
+    description: text nullable
 
     total_amount: decimal:14,2
-    used_amount: decimal:14,2:default(0)
+    used_amount: decimal:14,2 default:0
 
     relationships:
       belongsTo: Committee
@@ -1087,14 +1084,14 @@ models:
     committee_budget_item_id: id
 
     amount: decimal:14,2
-    description: text:nullable
-    receipt_file: string:nullable
+    description: text nullable
+    receipt_file: string nullable
 
     expense_date: date
 
     status: enum:submitted,approved,rejected
 
-    approved_by: id:nullable
+    approved_by: id nullable
 
     relationships:
       belongsTo: CommitteeBudgetItem, Employee:approved_by
@@ -1104,7 +1101,7 @@ models:
   # ======================
   Meeting:
     title: string
-    description: text:nullable
+    description: text nullable
 
     organizer_id: id
     leader_id: id
@@ -1115,14 +1112,14 @@ models:
     start_time: time
     end_time: time
 
-    asset_room_id: id:nullable
+    asset_room_id: id nullable
 
-    online_platform: string:nullable
-    online_link: string:nullable
+    online_platform: string nullable
+    online_link: string nullable
 
-    committee_id: id:nullable
+    committee_id: id nullable
 
-    is_confidential: boolean:default(false)
+    is_confidential: boolean default:false
 
     status: enum:draft,scheduled,completed,cancelled
 
@@ -1151,8 +1148,8 @@ models:
     meeting_id: id
 
     name: string
-    institution: string:nullable
-    email: string:nullable
+    institution: string nullable
+    email: string nullable
 
     relationships:
       belongsTo: Meeting
@@ -1164,13 +1161,13 @@ models:
   MeetingConsumptionRequest:
     meeting_id: id
 
-    description: text:nullable
+    description: text nullable
     estimated_participants: integer
 
     status: enum:requested,approved,rejected,fulfilled
 
     requested_at: timestamp
-    approved_by: id:nullable
+    approved_by: id nullable
 
     relationships:
       belongsTo: Meeting, Employee:approved_by
@@ -1183,12 +1180,11 @@ models:
     meeting_id: id
 
     summary: text
-    file: string:nullable
+    file: string nullable
 
-    is_confidential: boolean:default(false)
+    is_confidential: boolean default:false
 
     created_by: id
-    created_at: timestamp
 
     relationships:
       belongsTo: Meeting, Employee:created_by
@@ -1202,7 +1198,7 @@ models:
 
     title: string
     file_path: string
-    file_type: string:nullable
+    file_type: string nullable
 
     uploaded_by: id
     uploaded_at: timestamp
@@ -1217,7 +1213,7 @@ models:
     question_text: text
     type: enum:single_choice,multiple_choice,short_answer
 
-    is_active: boolean:default(true)
+    is_active: boolean default:true
 
     relationships:
       hasMany: SurveyQuestionOption, SurveyQuestionAssignment
@@ -1226,7 +1222,7 @@ models:
     survey_question_id: id
 
     option_text: string
-    weight: decimal:5,2:default(0)
+    weight: decimal:5,2 default:0
 
     relationships:
       belongsTo: SurveyQuestion
@@ -1237,12 +1233,12 @@ models:
 
   Survey:
     title: string
-    description: text:nullable
+    description: text nullable
 
     start_date: date
     end_date: date
 
-    is_active: boolean:default(false)
+    is_active: boolean default:false
 
     created_by: id
 
@@ -1254,7 +1250,7 @@ models:
     survey_id: id
     survey_question_id: id
 
-    order: integer:nullable
+    order: integer nullable
 
     relationships:
       belongsTo: Survey, SurveyQuestion
@@ -1266,14 +1262,14 @@ models:
   SurveyInvitation:
     survey_id: id
 
-    name: string:nullable
-    email: string:nullable
-    phone: string:nullable
+    name: string nullable
+    email: string nullable
+    phone: string nullable
 
-    pin: string:unique
+    pin: string unique
 
-    is_used: boolean:default(false)
-    used_at: timestamp:nullable
+    is_used: boolean default:false
+    used_at: timestamp nullable
 
     relationships:
       belongsTo: Survey
@@ -1297,7 +1293,7 @@ models:
     survey_response_id: id
     survey_question_id: id
 
-    answer_text: text:nullable
+    answer_text: text nullable
 
     relationships:
       belongsTo: SurveyResponse, SurveyQuestion
@@ -1322,11 +1318,11 @@ models:
     name: string
     type: enum:university,company,government,ngo,other
 
-    address: text:nullable
-    email: string:nullable
-    phone: string:nullable
+    address: text nullable
+    email: string nullable
+    phone: string nullable
 
-    description: text:nullable
+    description: text nullable
 
     relationships:
       hasMany: PartnerContact, PartnerPotential, Partnership
@@ -1339,14 +1335,14 @@ models:
     partner_id: id
 
     name: string
-    position: string:nullable
+    position: string nullable
 
-    email: string:nullable
-    phone: string:nullable
+    email: string nullable
+    phone: string nullable
 
-    is_primary: boolean:default(false)
+    is_primary: boolean default:false
 
-    notes: text:nullable
+    notes: text nullable
 
     relationships:
       belongsTo: Partner
@@ -1359,7 +1355,7 @@ models:
     partner_id: id
 
     title: string
-    description: text:nullable
+    description: text nullable
 
     status: enum:identified,in_discussion,proposed,converted,rejected
 
@@ -1383,7 +1379,7 @@ models:
     partner_potential_id: id
 
     activity_date: date
-    notes: text:nullable
+    notes: text nullable
 
     status: enum:planned,ongoing,completed
 
@@ -1398,10 +1394,10 @@ models:
 
   Partnership:
     partner_id: id
-    partner_potential_id: id:nullable
+    partner_potential_id: id nullable
 
     title: string
-    description: text:nullable
+    description: text nullable
 
     document_type: enum:moa,pks
     document_number: string
@@ -1432,10 +1428,10 @@ models:
     partnership_id: id
 
     title: string
-    description: text:nullable
+    description: text nullable
 
     start_date: date
-    end_date: date:nullable
+    end_date: date nullable
 
     status: enum:planned,ongoing,completed
 
@@ -1452,13 +1448,13 @@ models:
     partnership_implementation_id: id
 
     title: string
-    description: text:nullable
+    description: text nullable
 
-    document_number: string:nullable
-    document_file: string:nullable
+    document_number: string nullable
+    document_file: string nullable
 
-    start_date: date:nullable
-    end_date: date:nullable
+    start_date: date nullable
+    end_date: date nullable
 
     relationships:
       belongsTo: Partnership, PartnershipImplementation
@@ -1469,15 +1465,15 @@ models:
 
   Assignment:
     title: string
-    description: text:nullable
+    description: text nullable
 
     assigned_by: id
     assigned_to: id
 
-    parent_id: id:nullable
+    parent_id: id nullable
 
-    start_date: date:nullable
-    due_date: date:nullable
+    start_date: date nullable
+    due_date: date nullable
 
     status: enum:assigned,in_progress,completed,delegated,cancelled
     priority: enum:low,medium,high
@@ -1493,12 +1489,12 @@ models:
   AssignmentProgress:
     assignment_id: id
 
-    description: text:nullable
+    description: text nullable
     progress_date: date
 
     status: enum:in_progress,completed
 
-    attachment: string:nullable
+    attachment: string nullable
 
     created_by: id
 
