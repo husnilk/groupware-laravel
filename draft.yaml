@@ -86,6 +86,7 @@ models:
     address: text
     phone_number: string:nullable
 
+    organization_unit_id: id
     hire_date: date
     employment_status_id: id
     status: enum:active,inactive
@@ -94,6 +95,9 @@ models:
       belongsTo: User, OrganizationUnit, EmploymentStatus
       hasOne: Lecturer, Staff
       hasMany: EducationHistory
+
+  EmployeeGrade:
+    name: string
 
   Lecturer:
     employee_id: id:unique
@@ -205,11 +209,12 @@ models:
     doi: string:nullable
     url: string:nullable
     abstract: text:nullable
+    research_id: id:nullable
 
     relationships:
       hasMany: PublicationAuthor
       hasOne: JournalPublication, ConferenceProceeding
-      belongsTo: Research:nullable
+      belongsTo: Research
 
   JournalPublication:
     publication_id: id:unique
@@ -314,7 +319,7 @@ models:
 
     relationships:
       belongsTo: Employee, LeaveType, Employee:approver_id
-      hasMany: LeaveApprovalLog
+      hasMany: LeaveApproval
 
   LeaveApproval:
     leave_request_id: id
@@ -507,7 +512,7 @@ models:
     status: enum:submitted,approved,rejected
 
     relationships:
-      belongsTo: OfficialTravel, Employee
+      belongsTo: OfficialTravel, Employee, TravelCostComponent
 
   OfficialTravelDocument:
     official_travel_id: id
@@ -531,6 +536,7 @@ models:
     acquisition_type: enum:procurement,grant
     acquisition_date: date
     acquisition_cost: decimal:14,2:nullable
+    asset_grant_id: id:nullable
 
     condition: enum:good,minor_damage,major_damage
     status: enum:available,in_use,maintenance,retired
