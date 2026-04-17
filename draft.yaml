@@ -20,31 +20,32 @@ models:
   OrganizationUnit:
     name: string
     code: string unique nullable
-    parent_id: id nullable
+    parent_id: id nullable foreign:organization_units.id
     type: enum:university,faculty,department,lab,unit
     description: text nullable
 
     relationships:
-      belongsTo: OrganizationUnit:parent_id
+      belongsTo: OrganizationUnit
       hasMany: OrganizationUnit:parent_id, Employee
 
-  # ======================
+    # ======================
   # JABATAN STRUKTURAL
   # ======================
 
   StructuralPosition:
     name: string
-    parent_id: id nullable
+    parent_id: id nullable foreign:structural_positions.id
     grade: string
     qualification: text nullable
     description: text nullable
 
     relationships:
-      belongsTo: StructuralPosition:parent_id
-      hasMany: StructuralPosition:parent_id, StructuralPositionHistoryy
+      belongsTo: StructuralPosition
+      hasMany: StructuralPosition, StructuralPositionHistory
+
 
   JobResponsibility:
-    structural_position_id: id
+    structural_position_id: id foreign:structural_positions.id
     title: string
     description: text
     type: enum:main,function
@@ -54,8 +55,8 @@ models:
       belongsTo: StructuralPosition
 
   StructuralPositionHistory:
-    employee_id: id
-    structural_position_id: id
+    employee_id: id foreign:employees.id
+    structural_position_id: id foreign:structural_positions.id
     start_date: date
     end_date: date nullable
     decree_number: string nullable
@@ -69,7 +70,7 @@ models:
   # PEGAWAI
   # ======================
   Employee:
-    user_id: id unique
+    user_id: id unique foreign:users.id
     employee_number: string unique
     national_id_number: string nullable
     tax_id_number: string nullable
@@ -81,9 +82,9 @@ models:
     marital_status: enum:single,married,divorced
     address: text
     phone_number: string nullable
-    organization_unit_id: id
+    organization_unit_id: id foreign:organization_units.id
     hire_date: date
-    employment_status_id: id
+    employment_status_id: id foreign:employment_statuses.id
     status: enum:active,inactive
 
     relationships:
@@ -95,7 +96,7 @@ models:
     name: string
 
   Lecturer:
-    employee_id: id unique
+    employee_id: id unique foreign:employees.id
     academic_rank: string
     functional_position: string nullable
     expertise: string nullable
@@ -104,7 +105,7 @@ models:
       belongsTo: Employee
 
   Staff:
-    employee_id: id unique
+    employee_id: id unique foreign:employees.id
     position: string
     department: string
 
@@ -120,7 +121,7 @@ models:
       hasMany: Employee
 
   EducationHistory:
-    employee_id: id
+    employee_id: id foreign:employees.id
     degree: string
     institution: string
     major: string nullable
@@ -140,8 +141,8 @@ models:
       hasMany: LecturerFunctionalPosition
 
   LecturerFunctionalPosition:
-    lecturer_id: id
-    functional_position_id: id
+    lecturer_id: id foreign:lecturers.id
+    functional_position_id: id foreign:functional_positions.id
     start_date: date
     end_date: date nullable
     decree_number: string nullable
@@ -168,12 +169,13 @@ models:
       hasMany: ResearchMember, Publication
 
   ResearchMember:
-    research_id: id
-    lecturer_id: id
+    research_id: id foreign:research.id
+    lecturer_id: id foreign:lecturers.id
     role: string nullable
 
     relationships:
       belongsTo: Research, Lecturer
+
 
   # ======================
   # COMMUNITY SERVICE (PENGABDIAN)
@@ -192,8 +194,8 @@ models:
       hasMany: CommunityServiceMember
 
   CommunityServiceMember:
-    community_service_id: id
-    lecturer_id: id
+    community_service_id: id foreign:community_services.id
+    lecturer_id: id foreign:lecturers.id
     role: string nullable
 
     relationships:
@@ -208,7 +210,7 @@ models:
     doi: string nullable
     url: string nullable
     abstract: text nullable
-    research_id: id nullable
+    research_id: id nullable foreign:research.id
 
     relationships:
       hasMany: PublicationAuthor
@@ -216,8 +218,8 @@ models:
       belongsTo: Research
 
   PublicationAuthor:
-    publication_id: id
-    lecturer_id: id
+    publication_id: id foreign:publications.id
+    lecturer_id: id foreign:lecturers.id
     author_order: integer
     is_corresponding: boolean default:false
 
@@ -225,14 +227,13 @@ models:
       belongsTo: Publication, Lecturer
 
   JournalPublication:
-    publication_id: id unique
+    publication_id: id unique foreign:publications.id
     journal_name: string
     issn: string nullable
     publisher: string nullable
     volume: string nullable
     issue: string nullable
     pages: string nullable
-
     indexing: string nullable
     quartile: string nullable
 
@@ -240,27 +241,23 @@ models:
       belongsTo: Publication
 
   ConferenceProceeding:
-    publication_id: id unique
+    publication_id: id unique foreign:publications.id
     conference_name: string
     conference_location: string nullable
     conference_date: date nullable
-
     publisher: string nullable
     isbn: string nullable
     pages: string nullable
-
     indexing: string nullable
 
     relationships:
       belongsTo: Publication
 
-
-
   # ======================
   # MODUL KEHADIRAN
   # ======================
   Attendance:
-    employee_id: id
+    employee_id: id foreign:employees.id
     date: date
     check_in: datetime nullable
     check_out: datetime nullable
@@ -287,8 +284,8 @@ models:
       hasMany: LeaveRequest, LeaveBalance
 
   LeaveBalance:
-    employee_id: id
-    leave_type_id: id
+    employee_id: id foreign:employees.id
+    leave_type_id: id foreign:leave_types.id
     year: year
     quota: integer
     used: integer default:0
@@ -298,39 +295,35 @@ models:
       belongsTo: Employee, LeaveType
 
   LeaveRequest:
-    employee_id: id
-    leave_type_id: id
+    employee_id: id foreign:employees.id
+    leave_type_id: id foreign:leave_types.id
+    approver_id: id nullable foreign:employees.id
 
     start_date: date
     end_date: date
     total_days: integer
-
     reason: text nullable
     attachment: string nullable
-
     address_leave: string nullable
     contact_leave: string nullable
-
     status: enum:pending,approved,rejected,cancelled
     submitted_at: timestamp
     approved_at: timestamp nullable
-
-    approver_id: id nullable
 
     relationships:
       belongsTo: Employee, LeaveType, Employee:approver_id
       hasMany: LeaveApproval
 
   LeaveApproval:
-    leave_request_id: id
-    approver_id: id
+    leave_request_id: id foreign:leave_requests.id
+    approver_id: id foreign:employees.id
     level: integer
     status: enum:pending,approved,rejected
     notes: text nullable
     action_date: timestamp nullable
 
     relationships:
-      belongsTo: LeaveRequest, Employee:approver_id
+      belongsTo: LeaveRequest, Employee
 
   # ======================
   # LEMBUR (OVERTIME)
@@ -339,49 +332,42 @@ models:
     request_number: string unique
     title: string
     description: text nullable
-
     request_date: date
     planned_start_time: datetime
     planned_end_time: datetime
-
+    submitted_by: id foreign:employees.id
+    approved_by: id nullable foreign:employees.id
     status: enum:draft,pending,approved,rejected,completed,cancelled
-    submitted_by: id
-    approved_by: id nullable
-
     submitted_at: timestamp nullable
     approved_at: timestamp nullable
 
     relationships:
       belongsTo: Employee:submitted_by, Employee:approved_by
-      hasMany: OvertimeRequestMember, OvertimeApprovalLog, OvertimeReport
+      hasMany: OvertimeRequestMember, OvertimeApprovalLog
 
   OvertimeRequestMember:
-    overtime_request_id: id
-    employee_id: id
-
+    overtime_request_id: id foreign:overtime_requests.id
+    employee_id: id foreign:employees.id
     role: string nullable
     job_desc: string nullable
     planned_hours: decimal:5,2
-
     actual_start_time: datetime
     actual_end_time: datetime
     actual_hours: decimal:5,2
-
-    output: text nullable
-    attachment: string nullable
 
     relationships:
       belongsTo: OvertimeRequest, Employee
 
   OvertimeApprovalLog:
-    overtime_request_id: id
-    approver_id: id
+    overtime_request_id: id foreign:overtime_requests.id
+    approver_id: id foreign:employees.id
     status: enum:approved,rejected
     notes: text nullable
     action_date: timestamp
 
     relationships:
-      belongsTo: OvertimeRequest, Employee:approver_id
+      belongsTo: OvertimeRequest, Employee
+
   # ======================
   # NOMENKLATUR PEKERJAAN
   # ======================
@@ -396,7 +382,7 @@ models:
       hasMany: NomenclatureClassification
 
   NomenclatureClassification:
-    nomenclature_id: id
+    nomenclature_id: id foreign:nomenclatures.id
     name: string
     description: text nullable
 
@@ -405,14 +391,11 @@ models:
       hasMany: StaffNomenclatureHistory
 
   StaffNomenclatureHistory:
-    staff_id: id
-    nomenclature_classification_id: id
+    staff_id: id foreign:staff.id
+    nomenclature_class_id: id foreign:nomenclature_classifications.id
 
     start_date: date
     end_date: date nullable
-    decree_number: string nullable
-    decree_date: date nullable
-    document: string nullable
 
     relationships:
       belongsTo: Staff, NomenclatureClassification
@@ -431,11 +414,12 @@ models:
     invitation_file: string nullable
 
     status: enum:draft,pending,approved,rejected,completed
-    submitted_by: id
 
+    submitted_by: id foreign:employees.id
     submitted_at: timestamp
+
+    approved_by: id nullable foreign:employees.id
     approved_at: timestamp nullable
-    approved_by: id nullable
 
     travel_outcome: text nullable
     outcome_followup: text nullable
@@ -445,8 +429,9 @@ models:
       hasMany: OfficialTravelMember, OfficialTravelItinerary, OfficialTravelApproval, OfficialTravelReport, TravelExpense, OfficialTravelDocument
 
   OfficialTravelMember:
-    official_travel_id: id
-    employee_id: id
+    official_travel_id: id foreign:official_travels.id
+    employee_id: id foreign:employees.id
+
     report_date: date
     summary: text
     attachment: string nullable
@@ -457,7 +442,7 @@ models:
       belongsTo: OfficialTravel, Employee
 
   OfficialTravelItinerary:
-    official_travel_id: id
+    official_travel_id: id foreign:official_travels.id
 
     date: date
     location: string
@@ -468,15 +453,15 @@ models:
       belongsTo: OfficialTravel
 
   OfficialTravelApproval:
-    official_travel_id: id
-    approver_id: id
+    official_travel_id: id foreign:official_travels.id
+    approver_id: id foreign:employees.id
 
     status: enum:approved,rejected
     notes: text nullable
     action_date: timestamp
 
     relationships:
-      belongsTo: OfficialTravel, Employee:approver_id
+      belongsTo: OfficialTravel, Employee
 
   TravelCostComponent:
     name: string
@@ -487,10 +472,10 @@ models:
       hasMany: TravelExpense, TravelCostStandard
 
   TravelCostStandard:
-    city_id: id
-    structural_position_id: id nullable
-    employee_grade_id: id nullable
-    travel_cost_component_id: id
+    city_id: id foreign:cities.id
+    structural_position_id: id nullable foreign:structural_positions.id
+    employee_grade_id: id nullable foreign:employee_grades.id
+    travel_cost_component_id: id foreign:travel_cost_components.id
 
     amount: decimal:12,2
 
@@ -498,10 +483,10 @@ models:
       belongsTo: City, StructuralPosition, EmployeeGrade, TravelCostComponent
 
   TravelExpense:
-    official_travel_id: id
-    employee_id: id
+    official_travel_id: id foreign:official_travels.id
+    employee_id: id foreign:employees.id
 
-    travel_cost_component_id: id
+    travel_cost_component_id: id foreign:travel_cost_components.id
     amount: decimal:12,2
     description: text nullable
     receipt_file: string nullable
@@ -515,7 +500,7 @@ models:
       belongsTo: OfficialTravel, Employee, TravelCostComponent
 
   OfficialTravelDocument:
-    official_travel_id: id
+    official_travel_id: id foreign:official_travels.id
 
     title: string
     file_path: string
@@ -536,7 +521,7 @@ models:
     acquisition_type: enum:procurement,grant
     acquisition_date: date
     acquisition_cost: decimal:14,2 nullable
-    asset_grant_id: id nullable
+    asset_grant_id: id nullable foreign:asset_grants.id
 
     condition: enum:good,minor_damage,major_damage
     status: enum:available,in_use,maintenance,retired
@@ -550,7 +535,7 @@ models:
   # ======================
 
   AssetEquipment:
-    asset_id: id unique
+    asset_id: id unique foreign:assets.id
 
     brand: string nullable
     model: string nullable
@@ -572,7 +557,7 @@ models:
 
   AssetEquipmentRequest:
     request_number: string unique
-    employee_id: id
+    employee_id: id foreign:employees.id
 
     name: string
     specification: text nullable
@@ -584,12 +569,12 @@ models:
     status: enum:pending,approved,rejected
 
     submitted_at: timestamp
+
+    approved_by: id nullable foreign:employees.id
     approved_at: timestamp nullable
 
-    approved_by: id nullable
-
     relationships:
-      belongsTo: Employee, Employee:approved_by
+      belongsTo: Employee, Employee
 
   # ======================
   # PROCUREMENT
@@ -600,14 +585,14 @@ models:
     title: string
 
     status: enum:draft,submitted,approved,rejected,completed
-    created_by: id
+    created_by: id foreign:employees.id
 
     relationships:
-      belongsTo: Employee:created_by
-      hasMany: AssetEquipmentProcurementItem
+      belongsTo: Employee
+      hasMany: AssetEquipmentProcItem
 
-  AssetEquipmentProcurementItem:
-    asset_equipment_procurement_id: id
+  AssetEquipmentProcItem:
+    asset_equipment_proc_id: id foreign:asset_equipment_procurements.id
 
     name: string
     specification: text nullable
@@ -635,8 +620,8 @@ models:
   # ======================
 
   AssetMaintenanceRequest:
-    asset_id: id
-    reported_by: id
+    asset_id: id foreign:assets.id
+    reported_by: id foreign:employees.id
 
     issue_description: text
     status: enum:reported,in_progress,resolved
@@ -645,22 +630,22 @@ models:
     resolved_at: timestamp nullable
 
     relationships:
-      belongsTo: Asset, Employee:reported_by
+      belongsTo: Asset, Employee
 
   # ======================
   # LOAN
   # ======================
 
   AssetLoan:
-    asset_id: id
-    employee_id: id
+    asset_id: id foreign:assets.id
+    employee_id: id foreign:employees.id
 
     start_date: date
     end_date: date nullable
 
     status: enum:requested,approved,rejected,returned
 
-    approved_by: id nullable
+    approved_by: id nullable foreign:employees.id
 
     relationships:
       belongsTo: Asset, Employee, Employee:approved_by
@@ -669,7 +654,7 @@ models:
   # ======================
 
   AssetTracking:
-    asset_id: id
+    asset_id: id foreign:assets.id
 
     location: string nullable
     latitude: decimal:10,6 nullable
@@ -682,15 +667,15 @@ models:
       belongsTo: Asset
 
   AssetTrackingLog:
-    asset_id: id
+    asset_id: id foreign:assets.id
     from_location: string nullable
     to_location: string nullable
 
     moved_at: timestamp
-    moved_by: id nullable
+    moved_by: id nullable foreign:employees.id
 
     relationships:
-      belongsTo: Asset, Employee:moved_by
+      belongsTo: Asset, Employee
 
   # ======================
   # AUDIT (STOCK OPNAME)
@@ -699,17 +684,17 @@ models:
   AssetAudit:
     audit_number: string unique
     audit_date: date
-    conducted_by: id
+    conducted_by: id foreign:employees.id
 
     description: text nullable
 
     relationships:
-      belongsTo: Employee:conducted_by
+      belongsTo: Employee
       hasMany: AssetAuditDetail
 
   AssetAuditDetail:
-    asset_audit_id: id
-    asset_id: id
+    asset_audit_id: id foreign:asset_audits.id
+    asset_id: id foreign:assets.id
 
     condition: enum:good,minor_damage,major_damage,missing
     notes: text nullable
@@ -722,7 +707,7 @@ models:
   # ======================
 
   AssetInsurance:
-    asset_id: id
+    asset_id: id foreign:assets.id
 
     policy_number: string
     provider: string
@@ -739,7 +724,7 @@ models:
       belongsTo: Asset
 
   AssetInsuranceClaim:
-    asset_insurance_id: id
+    asset_insurance_id: id foreign:asset_insurances.id
 
     claim_date: date
     claim_amount: decimal:14,2
@@ -767,8 +752,8 @@ models:
     # ======================
 
   AssetRoom:
-    asset_id: id unique
-    building_id: id
+    asset_id: id unique foreign:assets.id
+    building_id: id foreign:buildings.id
 
     name: string
     code: string unique
@@ -777,10 +762,10 @@ models:
     capacity: integer
     is_public: boolean default:false
 
-    responsible_employee_id: id
+    responsible_employee_id: id foreign:employees.id
 
     relationships:
-      belongsTo: Asset, Building, Employee:responsible_employee_id
+      belongsTo: Asset, Building, Employee
       hasMany: RoomLoan, RoomMaintenanceRequest, AssetAssignment
 
     # ======================
@@ -788,8 +773,8 @@ models:
     # ======================
 
   RoomMaintenanceRequest:
-    asset_room_id: id
-    reported_by: id
+    asset_room_id: id foreign:asset_rooms.id
+    reported_by: id foreign:employees.id
 
     issue_description: text
     status: enum:reported,in_progress,resolved
@@ -798,15 +783,15 @@ models:
     resolved_at: timestamp nullable
 
     relationships:
-      belongsTo: AssetRoom, Employee:reported_by
+      belongsTo: AssetRoom, Employee
 
     # ======================
     # ROOM LOAN (BOOKING)
     # ======================
 
   RoomLoan:
-    asset_room_id: id
-    employee_id: id
+    asset_room_id: id foreign:asset_rooms.id
+    employee_id: id foreign:employees.id
 
     start_time: datetime
     end_time: datetime
@@ -815,7 +800,7 @@ models:
 
     status: enum:requested,approved,rejected,completed
 
-    approved_by: id nullable
+    approved_by: id nullable foreign:employees.id
 
     relationships:
       belongsTo: AssetRoom, Employee, Employee:approved_by
@@ -823,17 +808,17 @@ models:
     # ======================
     # UPDATE EXISTING (INTEGRATION)
     # ======================
+
   AssetAssignment:
-    asset_id: id
-    employee_id: id nullable
-    asset_room_id: id nullable
+    asset_id: id foreign:assets.id
+    employee_id: id nullable foreign:employees.id
+    asset_room_id: id nullable foreign:asset_rooms.id
 
     assigned_at: timestamp
     returned_at: timestamp nullable
 
     relationships:
       belongsTo: Asset, Employee, AssetRoom
-
   # ======================
   # BARANG PERSEDIAAN
   # ======================
@@ -849,14 +834,14 @@ models:
       hasMany: InventoryProcurementItem, InventoryPurchaseItem, InventoryRequestDetail, InventoryTransaction
 
   Inventory:
-    item_id: id unique
+    item_id: id unique foreign:items.id
     quantity: integer default:0
 
     relationships:
       belongsTo: Item
 
   InventoryTransaction:
-    item_id: id
+    item_id: id foreign:items.id
     type: enum:in,out,adjustment
     quantity: integer
     transaction_date: date
@@ -875,17 +860,17 @@ models:
     title: string
 
     status: enum:draft,submitted,approved,rejected
-    created_by: id
+    created_by: id foreign:employees.id
 
     approved_at: timestamp nullable
 
     relationships:
-      belongsTo: Employee:created_by
+      belongsTo: Employee
       hasMany: InventoryProcurementItem
 
   InventoryProcurementItem:
-    inventory_procurement_id: id
-    item_id: id nullable
+    inventory_procurement_id: id foreign:inventory_procurements.id
+    item_id: id nullable foreign:items.id
     item_name: string nullable
     quantity: integer
 
@@ -898,7 +883,7 @@ models:
 
   InventoryPurchase:
     purchase_number: string unique
-    inventory_procurement_id: id nullable
+    inventory_procurement_id: id nullable foreign:inventory_procurements.id
 
     purchase_date: date
     supplier: string nullable
@@ -910,8 +895,8 @@ models:
       hasMany: InventoryPurchaseItem
 
   InventoryPurchaseItem:
-    inventory_purchase_id: id
-    item_id: id
+    inventory_purchase_id: id foreign:inventory_purchases.id
+    item_id: id foreign:items.id
 
     quantity: integer
     price: decimal:12,2 nullable
@@ -925,12 +910,12 @@ models:
 
   InventoryRequest:
     request_number: string unique
-    employee_id: id
+    employee_id: id foreign:employees.id
 
     request_date: date
     status: enum:pending,approved,rejected,fulfilled
 
-    approved_by: id nullable
+    approved_by: id nullable foreign:employees.id
     approved_at: timestamp nullable
 
     relationships:
@@ -938,9 +923,9 @@ models:
       hasMany: InventoryRequestDetail, InventoryRequestApproval
 
   InventoryRequestDetail:
-    inventory_request_id: id
+    inventory_request_id: id foreign:inventory_requests.id
 
-    item_id: id nullable
+    item_id: id nullable foreign:items.id
     item_name: string nullable
     specification: text nullable
 
@@ -950,23 +935,19 @@ models:
       belongsTo: InventoryRequest, Item
 
   InventoryRequestApproval:
-    inventory_request_id: id
-    approver_id: id
+    inventory_request_id: id foreign:inventory_requests.id
+    approver_id: id foreign:employees.id
 
     status: enum:approved,rejected
     notes: text nullable
     action_date: timestamp
 
     relationships:
-      belongsTo: InventoryRequest, Employee:approver_id
+      belongsTo: InventoryRequest, Employee
 
   # ======================
   # PROJECT MANAGEMENT
   # ======================
-
-    # ======================
-    # COMMITTEE (PROJECT)
-    # ======================
 
   Committee:
     name: string
@@ -978,22 +959,22 @@ models:
     start_date: date
     end_date: date nullable
 
-    created_by: id
+    created_by: id foreign:employees.id
 
     status: enum:draft,active,completed,cancelled
 
     relationships:
-      belongsTo: Employee:created_by
+      belongsTo: Employee
       hasMany: CommitteeMember, CommitteeExternalMember, CommitteeProgress, CommitteeTask, CommitteeBudget, Meeting
 
 
+  # ======================
+  # INTERNAL MEMBER
+  # ======================
 
-    # ======================
-    # INTERNAL MEMBER
-    # ======================
   CommitteeMember:
-    committee_id: id
-    employee_id: id
+    committee_id: id foreign:committees.id
+    employee_id: id foreign:employees.id
 
     role: string
     is_leader: boolean default:false
@@ -1002,12 +983,12 @@ models:
       belongsTo: Committee, Employee
       hasMany: CommitteeProgress
 
-    # ======================
-    # EXTERNAL MEMBER
-    # ======================
+  # ======================
+  # EXTERNAL MEMBER
+  # ======================
 
   CommitteeExternalMember:
-    committee_id: id
+    committee_id: id foreign:committees.id
 
     name: string
     institution: string nullable
@@ -1021,8 +1002,8 @@ models:
   # ======================
 
   CommitteeTask:
-    committee_id: id
-    assigned_to: id nullable
+    committee_id: id foreign:committees.id
+    assigned_to: id nullable foreign:committee_members.id
 
     title: string
     description: text nullable
@@ -1034,11 +1015,11 @@ models:
     status: enum:todo,in_progress,done,blocked
 
     relationships:
-      belongsTo: Committee, CommitteeMember:assigned_to
+      belongsTo: Committee, CommitteeMember
       hasMany: CommitteeTaskProgress
 
   CommitteeTaskProgress:
-    committee_task_id: id
+    committee_task_id: id foreign:committee_tasks.id
 
     description: text nullable
     progress_date: date
@@ -1055,7 +1036,7 @@ models:
   # ======================
 
   CommitteeBudget:
-    committee_id: id
+    committee_id: id foreign:committees.id
 
     name: string
     description: text nullable
@@ -1068,7 +1049,7 @@ models:
       hasMany: CommitteeBudgetItem
 
   CommitteeBudgetItem:
-    committee_budget_id: id
+    committee_budget_id: id foreign:committee_budgets.id
 
     name: string
     quantity: integer
@@ -1081,7 +1062,7 @@ models:
       hasMany: CommitteeExpense
 
   CommitteeExpense:
-    committee_budget_item_id: id
+    committee_budget_item_id: id foreign:committee_budget_items.id
 
     amount: decimal:14,2
     description: text nullable
@@ -1091,20 +1072,21 @@ models:
 
     status: enum:submitted,approved,rejected
 
-    approved_by: id nullable
+    approved_by: id nullable foreign:employees.id
 
     relationships:
-      belongsTo: CommitteeBudgetItem, Employee:approved_by
+      belongsTo: CommitteeBudgetItem, Employee
 
   # ======================
   # MEETING
   # ======================
+
   Meeting:
     title: string
     description: text nullable
 
-    organizer_id: id
-    leader_id: id
+    organizer_id: id foreign:employees.id
+    leader_id: id foreign:employees.id
 
     meeting_type: enum:offline,online,hybrid
 
@@ -1112,12 +1094,12 @@ models:
     start_time: time
     end_time: time
 
-    asset_room_id: id nullable
+    asset_room_id: id nullable foreign:asset_rooms.id
 
     online_platform: string nullable
     online_link: string nullable
 
-    committee_id: id nullable
+    committee_id: id nullable foreign:committees.id
 
     is_confidential: boolean default:false
 
@@ -1132,8 +1114,8 @@ models:
   # ======================
 
   MeetingParticipant:
-    meeting_id: id
-    employee_id: id
+    meeting_id: id foreign:meetings.id
+    employee_id: id foreign:employees.id
 
     status: enum:invited,confirmed,attended
 
@@ -1145,7 +1127,7 @@ models:
   # ======================
 
   MeetingExternalParticipant:
-    meeting_id: id
+    meeting_id: id foreign:meetings.id
 
     name: string
     institution: string nullable
@@ -1159,7 +1141,7 @@ models:
   # ======================
 
   MeetingConsumptionRequest:
-    meeting_id: id
+    meeting_id: id foreign:meetings.id
 
     description: text nullable
     estimated_participants: integer
@@ -1167,47 +1149,47 @@ models:
     status: enum:requested,approved,rejected,fulfilled
 
     requested_at: timestamp
-    approved_by: id nullable
+    approved_by: id nullable foreign:employees.id
 
     relationships:
-      belongsTo: Meeting, Employee:approved_by
+      belongsTo: Meeting, Employee
 
   # ======================
   # MEETING MINUTES
   # ======================
 
   MeetingMinutes:
-    meeting_id: id
+    meeting_id: id foreign:meetings.id
 
     summary: text
     file: string nullable
 
     is_confidential: boolean default:false
 
-    created_by: id
+    created_by: id foreign:employees.id
 
     relationships:
-      belongsTo: Meeting, Employee:created_by
+      belongsTo: Meeting, Employee
 
   # ======================
   # DOCUMENTATION
   # ======================
 
   MeetingDocument:
-    meeting_id: id
+    meeting_id: id foreign:meetings.id
 
     title: string
     file_path: string
     file_type: string nullable
 
-    uploaded_by: id
+    uploaded_by: id foreign:employees.id
     uploaded_at: timestamp
 
     relationships:
-      belongsTo: Meeting, Employee:uploaded_by
+      belongsTo: Meeting, Employee
 
   # ======================
-  # SURVEY
+  # SURVEY QUESTION BANK
   # ======================
   SurveyQuestion:
     question_text: text
@@ -1219,7 +1201,7 @@ models:
       hasMany: SurveyQuestionOption, SurveyQuestionAssignment
 
   SurveyQuestionOption:
-    survey_question_id: id
+    survey_question_id: id foreign:survey_questions.id
 
     option_text: string
     weight: decimal:5,2 default:0
@@ -1240,15 +1222,15 @@ models:
 
     is_active: boolean default:false
 
-    created_by: id
+    created_by: id foreign:employees.id
 
     relationships:
-      belongsTo: Employee:created_by
+      belongsTo: Employee
       hasMany: SurveyQuestionAssignment, SurveyResponse, SurveyInvitation
 
   SurveyQuestionAssignment:
-    survey_id: id
-    survey_question_id: id
+    survey_id: id foreign:surveys.id
+    survey_question_id: id foreign:survey_questions.id
 
     order: integer nullable
 
@@ -1260,7 +1242,7 @@ models:
   # ======================
 
   SurveyInvitation:
-    survey_id: id
+    survey_id: id foreign:surveys.id
 
     name: string nullable
     email: string nullable
@@ -1280,8 +1262,8 @@ models:
   # ======================
 
   SurveyResponse:
-    survey_id: id
-    survey_invitation_id: id
+    survey_id: id foreign:surveys.id
+    survey_invitation_id: id foreign:survey_invitations.id
 
     submitted_at: timestamp
 
@@ -1290,8 +1272,8 @@ models:
       hasMany: SurveyAnswer
 
   SurveyAnswer:
-    survey_response_id: id
-    survey_question_id: id
+    survey_response_id: id foreign:survey_responses.id
+    survey_question_id: id foreign:survey_questions.id
 
     answer_text: text nullable
 
@@ -1300,8 +1282,8 @@ models:
       hasMany: SurveyAnswerOption
 
   SurveyAnswerOption:
-    survey_answer_id: id
-    survey_question_option_id: id
+    survey_answer_id: id foreign:survey_answers.id
+    survey_question_option_id: id foreign:survey_question_options.id
 
     relationships:
       belongsTo: SurveyAnswer, SurveyQuestionOption
@@ -1327,12 +1309,13 @@ models:
     relationships:
       hasMany: PartnerContact, PartnerPotential, Partnership
 
+
   # ======================
-  # PARTNER CONTACT (NEW)
+  # PARTNER CONTACT
   # ======================
 
   PartnerContact:
-    partner_id: id
+    partner_id: id foreign:partners.id
 
     name: string
     position: string nullable
@@ -1352,7 +1335,7 @@ models:
   # ======================
 
   PartnerPotential:
-    partner_id: id
+    partner_id: id foreign:partners.id
 
     title: string
     description: text nullable
@@ -1364,7 +1347,7 @@ models:
       hasMany: PartnerPotentialField, PartnerFollowUp, Partnership
 
   PartnerPotentialField:
-    partner_potential_id: id
+    partner_potential_id: id foreign:partner_potentials.id
 
     field: enum:research,community_service,internship,training,other
 
@@ -1376,25 +1359,25 @@ models:
   # ======================
 
   PartnerFollowUp:
-    partner_potential_id: id
+    partner_potential_id: id foreign:partner_potentials.id
 
     activity_date: date
     notes: text nullable
 
     status: enum:planned,ongoing,completed
 
-    conducted_by: id
+    conducted_by: id foreign:employees.id
 
     relationships:
-      belongsTo: PartnerPotential, Employee:conducted_by
+      belongsTo: PartnerPotential, Employee
 
   # ======================
   # PARTNERSHIP (KERJASAMA RESMI)
   # ======================
 
   Partnership:
-    partner_id: id
-    partner_potential_id: id nullable
+    partner_id: id foreign:partners.id
+    partner_potential_id: id nullable foreign:partner_potentials.id
 
     title: string
     description: text nullable
@@ -1412,7 +1395,7 @@ models:
       hasMany: PartnershipDocument, PartnershipImplementation, ImplementationArrangement
 
   PartnershipDocument:
-    partnership_id: id
+    partnership_id: id foreign:partnerships.id
 
     file_path: string
     signed_date: date
@@ -1425,7 +1408,7 @@ models:
   # ======================
 
   PartnershipImplementation:
-    partnership_id: id
+    partnership_id: id foreign:partnerships.id
 
     title: string
     description: text nullable
@@ -1444,8 +1427,8 @@ models:
   # ======================
 
   ImplementationArrangement:
-    partnership_id: id
-    partnership_implementation_id: id
+    partnership_id: id foreign:partnerships.id
+    partnership_impl_id: id foreign:partnership_implementations.id
 
     title: string
     description: text nullable
@@ -1467,10 +1450,10 @@ models:
     title: string
     description: text nullable
 
-    assigned_by: id
-    assigned_to: id
+    assigned_by: id foreign:employees.id
+    assigned_to: id foreign:employees.id
 
-    parent_id: id nullable
+    parent_id: id nullable foreign:assignments.id
 
     start_date: date nullable
     due_date: date nullable
@@ -1487,7 +1470,7 @@ models:
   # ======================
 
   AssignmentProgress:
-    assignment_id: id
+    assignment_id: id foreign:assignments.id
 
     description: text nullable
     progress_date: date
@@ -1496,10 +1479,10 @@ models:
 
     attachment: string nullable
 
-    created_by: id
+    created_by: id foreign:employees.id
 
     relationships:
-      belongsTo: Assignment, Employee:created_by
+      belongsTo: Assignment, Employee
 
 controllers:
 # ...
