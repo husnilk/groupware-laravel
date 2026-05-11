@@ -1484,5 +1484,144 @@ models:
     relationships:
       belongsTo: Assignment, Employee
 
+  # ======================
+  # EVENT
+  # ======================
+
+  Event:
+    title: string
+    slug: string unique
+
+    description: text nullable
+    objectives: text nullable
+
+    event_type: enum:seminar,workshop,training,conference,webinar,other
+    delivery_mode: enum:offline,online,hybrid
+
+    start_date: date
+    end_date: date
+
+    start_time: time nullable
+    end_time: time nullable
+
+    venue: string nullable
+    online_platform: string nullable
+    online_link: string nullable
+
+    quota: integer nullable
+    registration_deadline: datetime nullable
+
+    cover_image: string nullable
+    banner_image: string nullable
+
+    status: enum:draft,published,closed,cancelled
+
+    created_by: id foreign:employees.id
+    published_by: id nullable
+    published_at: timestamp nullable
+
+    relationships:
+      belongsTo: Employee:created_by, Employee:published_by
+      hasMany: EventCommitteeMember, EventRegistration, EventReminder, EventAttendance, EventCertificate, EventDocument
+
+  # ======================
+  # EVENT COMMITTEE
+  # ======================
+
+  EventCommitteeMember:
+    event_id: id foreign:events.id
+    employee_id: id foreign:employees.id
+
+    role: string
+    is_leader: boolean default:false
+
+    relationships:
+      belongsTo: Event, Employee
+
+  # ======================
+  # EVENT REGISTRATION
+  # ======================
+
+  EventRegistration:
+    event_id: id foreign:employees.id
+    user_id: id foreign:users.id
+
+    registration_number: string unique
+
+    registered_at: timestamp
+
+    attendance_status: enum:registered,attended,no_show,cancelled
+
+    notes: text nullable
+    ticket_number: string unique
+    qr_code: string nullable
+    issued_at: timestamp
+
+    certificate_number: string unique
+
+    file_path: string nullable
+
+    generated_by: id nullable foreign:employees.id
+    generated_at: timestamp nullable
+
+    relationships:
+      belongsTo: Event, User
+      hasOne: Employee:generated_by
+
+  # ======================
+  # EVENT REMINDER
+  # ======================
+
+  EventReminder:
+    event_id: id foreign:events.id
+
+    sent_by: id foreign:employees.id
+
+    channel: enum:email,whatsapp,sms,system
+    message: text
+
+    sent_at: timestamp
+
+    relationships:
+      belongsTo: Event, Employee:sent_by
+
+  # ======================
+  # EVENT ATTENDANCE
+  # ======================
+
+  EventAttendance:
+    event_registration_id: id foreign:event_registrations.id
+
+    checked_in_at: timestamp nullable
+    checked_out_at: timestamp nullable
+
+    checked_by: id nullable foreign:employees.id
+
+    attendance_method: enum:manual,qr_scan,system
+
+    status: enum:present,absent,partial
+
+    relationships:
+      belongsTo: Event, EventRegistration, Employee:checked_by
+
+  # ======================
+  # EVENT DOCUMENT / REPORT
+  # ======================
+
+  EventDocument:
+    event_id: id foreign:events.id
+
+    title: string
+    document_type: enum:report,photo,proposal,minutes,attendance,other
+
+    file_path: string
+    description: text nullable
+
+    uploaded_by: id foreign:employees.id
+    uploaded_at: timestamp
+
+    relationships:
+      belongsTo: Event, Employee:uploaded_by
+
 controllers:
 # ...
